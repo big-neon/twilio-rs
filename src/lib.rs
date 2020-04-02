@@ -16,7 +16,6 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 use std::io::Read;
-use std::io::Write;
 use url::form_urlencoded;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::header::HeaderValue;
@@ -52,6 +51,7 @@ pub enum TwilioError {
     },
 }
 
+#[allow(deprecated)]
 impl fmt::Display for TwilioError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.description())?;
@@ -70,17 +70,17 @@ impl Error for TwilioError {
             AuthError => "AuthError",
             BadRequest => "BadRequest",
             ValidationError {
-                code,
-                message,
-                more_info,
-                status,
+                code: _,
+                message: _,
+                more_info: _,
+                status: _,
             } => "Validation Error",
         }
     }
 }
 
 impl From<serde_json::Error> for TwilioError {
-    fn from(e: serde_json::Error) -> Self {
+    fn from(_: serde_json::Error) -> Self {
         TwilioError::ParsingError
     }
 }
@@ -111,7 +111,7 @@ impl Client {
             self.account_id, endpoint
         );
 
-        let client = reqwest::Client::new();
+        let client = reqwest::blocking::Client::new();
 
         let post_body = url_encode(params);
         let req = client
